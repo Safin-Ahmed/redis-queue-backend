@@ -145,7 +145,7 @@ const nodejsInstance = new aws.ec2.Instance("nodejs-instance", {
   vpcSecurityGroupIds: [redisSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
-  keyName: "redis", // Update with your key pair
+  keyName: "MyKeyPair", // Update with your key pair
   associatePublicIpAddress: true,
   tags: {
     Name: "nodejs-instance",
@@ -163,7 +163,7 @@ const createRedisInstance = (name, subnetId) => {
     vpcSecurityGroupIds: [redisSecurityGroup.id],
     ami: amiId,
     subnetId: subnetId,
-    keyName: "redis", // Update with your key pair
+    keyName: "MyKeyPair", // Update with your key pair
     associatePublicIpAddress: true,
     tags: {
       Name: name,
@@ -201,25 +201,28 @@ const redisInstance6 = createRedisInstance(
 
 const redisEndpoint = `http://${redisInstance6.publicIp}:16379`;
 
-// Launch Template for worker instances
 const workerLaunchTemplate = new aws.ec2.LaunchTemplate(
   "worker-launch-template",
   {
     instanceType: "t2.micro",
     imageId: amiId,
-    keyName: "redis",
+    keyName: "MyKeyPair",
     vpcSecurityGroupIds: [redisSecurityGroup.id],
-    userData: pulumi.interpolate`#!/bin/bash
+    userData: pulumi.secret(
+      Buffer.from(
+        `#!/bin/bash
     sudo apt update -y
     sudo apt install -y git nodejs npm
     cd /home/ubuntu
-    git clone https://github.com/Safin-Ahmed/redis-job-backend
-    cd redis-job-backend
+    git clone https://github.com/Safin-Ahmed/redis-queue-backend.git
+    cd redis-queue-backend
     npm install
     export REDIS_HOST=${redisEndpoint}
     export REDIS_PORT=6379
     node worker.js
-    `,
+    `
+      ).toString("base64")
+    ), // <-- Convert to Base64
     tags: { Name: "Worker-Template" },
   }
 );
@@ -249,13 +252,13 @@ const monitoringInstance = new aws.ec2.Instance("monitoring-instance", {
   vpcSecurityGroupIds: [redisSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
-  keyName: "redis", // Update with your key pair
+  keyName: "MyKeyPair", // Update with your key pair
   associatePublicIpAddress: true,
   userData: `#!/bin/bash
   sudo apt update -y
   sudo apt install -y nodejs npm awscli git
   cd /home/ubuntu
-  git clone https://github.com/Safin-Ahmed/redis-job-backend
+  git clone https://github.com/Safin-Ahmed/redis-queue-backend.git
   npm install
   node monitor.js
   `,
@@ -272,7 +275,7 @@ const grafanaInstance = new aws.ec2.Instance("grafana-instance", {
   vpcSecurityGroupIds: [redisSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
-  keyName: "redis", // Update with your key pair
+  keyName: "MyKeyPair", // Update with your key pair
   associatePublicIpAddress: true,
   tags: {
     Name: "grafana-instance",
@@ -282,12 +285,12 @@ const grafanaInstance = new aws.ec2.Instance("grafana-instance", {
 });
 
 // Frontend Instance
-const frontendInstance = new aws.ec2.Instance("grafana-instance", {
+const frontendInstance = new aws.ec2.Instance("frontend-instance", {
   instanceType: "t2.micro",
   vpcSecurityGroupIds: [frontendSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
-  keyName: "redis", // Update with your key pair
+  keyName: "MyKeyPair", // Update with your key pair
   associatePublicIpAddress: true,
   tags: {
     Name: "frontend-instance",
