@@ -12,19 +12,19 @@ const ec2 = new AWS.EC2();
 // Scaling Parameters
 
 // Jobs in the queue to trigger scale up
-const SCALE_UP_THRESHOLD = 50;
+const SCALE_UP_THRESHOLD = 2;
 
 // Jobs in the queue to trigger scale down
-const SCALE_DOWN_THRESHOLD = 10;
+const SCALE_DOWN_THRESHOLD = 1;
 
 // Maximum number of workers
-const MAX_WORKERS = 10;
+const MAX_WORKERS = 5;
 
 // Minimum number of workers
 const MIN_WORKERS = 1;
 
 // Launch Template for Workers
-const LAUNCH_TEMPLATE_ID = "lt-12345678";
+const LAUNCH_TEMPLATE_ID = "lt-0c975ceea10b5fdfe";
 
 const getQueueLength = async (queueName) => {
   try {
