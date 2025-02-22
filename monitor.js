@@ -110,6 +110,8 @@ const monitorQueue = async () => {
     // Fetch Active instances
     const activeInstances = await getActiveInstances();
 
+    console.log({ totalJobs, activeInstances });
+
     if (
       totalJobs >= SCALE_UP_THRESHOLD &&
       activeInstances.length < MAX_WORKERS
@@ -141,7 +143,7 @@ const monitorQueue = async () => {
 // Run monitoring loop periodically
 const startMonitoring = () => {
   console.log("Starting queue monitoring...");
-  setInterval(monitorQueue, 2000);
+  setInterval(monitorQueue, 1000);
 };
 
 if (require.main === module) {
