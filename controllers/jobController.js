@@ -70,15 +70,24 @@ exports.getJobStatus = async (req, res) => {
 exports.getAllJobs = async (req, res) => {
   const span = trace.getTracer("redis-job-queue").startSpan("get_all_jobs");
   try {
-    const jobKeys = await redis.keys("job:*");
+    const nodes = redis.nodes("master"); // Get all master nodes
+    let jobKeys = [];
+
+    // Collect keys from all nodes
+    for (const node of nodes) {
+      const keys = await node.keys("job:*");
+      jobKeys.push(...keys);
+    }
+
+    jobKeys = [...new Set(jobKeys)]; // Remove duplicates
+
     const jobs = [];
-
-    console.log({ jobKeys });
-
     for (const key of jobKeys) {
       const job = await redis.hgetall(key);
       jobs.push({ jobId: key, ...job });
     }
+
+    console.log({ jobs });
 
     res.status(200).json({ success: true, jobs });
   } catch (error) {
