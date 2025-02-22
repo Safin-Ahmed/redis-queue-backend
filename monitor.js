@@ -41,7 +41,7 @@ const getActiveInstances = async () => {
     const data = await ec2
       .describeInstances({
         Filters: [
-          { Name: "AutoScaleGroup", Values: ["WorkerInstance"] },
+          { Name: "tag:AutoScaleGroup", Values: ["WorkerInstance"] },
           { Name: "instance-state-name", Values: ["running", "pending"] },
         ],
       })
