@@ -73,6 +73,8 @@ exports.getAllJobs = async (req, res) => {
     const jobKeys = await redis.keys("job:*");
     const jobs = [];
 
+    console.log({ jobs });
+
     for (const key of jobKeys) {
       const job = await redis.hgetall(key);
       jobs.push({ jobId: key, ...job });

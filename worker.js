@@ -99,7 +99,7 @@ async function sendHeartbeat() {
       queue: queueName,
       last_seen: Date.now(),
     });
-    await redis.expire(workerId, 10);
+    await redis.expire(workerId, 20);
     console.log(`[HEARTBEAT] Heartbeat sent for ${workerId}`);
   } catch (error) {
     console.error(`[HEARTBEAT ERROR] Error sending heartbeat: ${error}`);
