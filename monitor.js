@@ -2,6 +2,8 @@ require("dotenv").config();
 
 const AWS = require("aws-sdk");
 
+const redis = require("./redis/redisClient");
+
 // AWS CONFIG
 AWS.config.update({ region: "ap-southeast-1" });
 
