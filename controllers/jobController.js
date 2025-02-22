@@ -143,7 +143,17 @@ exports.getJobResult = async (req, res) => {
 exports.getJobStats = async (req, res) => {
   const span = trace.getTracer("redis-job-queue").startSpan("get_job_stats");
   try {
-    const jobKeys = await redis.keys("job:*");
+    const nodes = redis.nodes("master"); // Get all master nodes
+    let jobKeys = [];
+
+    // Collect job keys from all master nodes
+    for (const node of nodes) {
+      const keys = await node.keys("job:*");
+      jobKeys.push(...keys);
+    }
+
+    jobKeys = [...new Set(jobKeys)]; // Remove duplicates
+
     const stats = {
       PENDING: 0,
       PROCESSING: 0,
@@ -151,9 +161,10 @@ exports.getJobStats = async (req, res) => {
       FAILED: 0,
     };
 
+    // Fetch job statuses and count occurrences
     for (const key of jobKeys) {
       const status = await redis.hget(key, "status");
-      stats[status] = (stats[status] || 0) + 1;
+      if (status) stats[status] = (stats[status] || 0) + 1;
     }
 
     return res.status(200).json({ success: true, stats });

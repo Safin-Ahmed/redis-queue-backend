@@ -2,14 +2,24 @@ const redis = require("../redis/redisClient");
 
 exports.getWorkerHealth = async (req, res) => {
   try {
-    const workerKeys = await redis.keys("worker:*");
+    const nodes = redis.nodes("master"); // Get all master nodes
+    let workerKeys = [];
+
+    // Collect worker keys from all master nodes
+    for (const node of nodes) {
+      const keys = await node.keys("worker:*");
+      workerKeys.push(...keys);
+    }
+
+    workerKeys = [...new Set(workerKeys)]; // Remove duplicates
+
     const workers = [];
 
-    console.log({ workerKeys });
+    // Fetch worker data and determine health status
     for (const key of workerKeys) {
       const worker = await redis.hgetall(key);
-      if (worker) {
-        const isAlive = Date.now() - worker.last_seen < 10000;
+      if (worker && worker.last_seen) {
+        const isAlive = Date.now() - parseInt(worker.last_seen, 10) < 10000;
         workers.push({
           worker_id: key,
           queue: worker.queue,
