@@ -18,7 +18,7 @@ const resource = Resource.default().merge(
 );
 
 const traceExporter = new OTLPTraceExporter({
-  url: "http://localhost:4317",
+  url: "http://10.0.1.33:4317",
 });
 
 const sdk = new NodeSDK({
