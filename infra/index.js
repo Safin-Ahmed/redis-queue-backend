@@ -315,7 +315,7 @@ exports.monitoringInstanceId = monitoringInstance.id;
 
 const grafanaInstance = new aws.ec2.Instance("grafana-instance", {
   instanceType: "t2.micro",
-  vpcSecurityGroupIds: "t2.micro",
+  vpcSecurityGroupIds: [redisSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
   keyName: "MyKeyPair",
@@ -331,7 +331,7 @@ exports.grafanaInstanceId = grafanaInstance.id;
 
 const frontendInstance = new aws.ec2.Instance("frontend-instance", {
   instanceType: "t2.micro",
-  vpcSecurityGroupIds: "t2.micro",
+  vpcSecurityGroupIds: [frontendSecurityGroup.id],
   ami: amiId,
   subnetId: publicSubnet1.id,
   keyName: "MyKeyPair",
