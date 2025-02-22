@@ -28,8 +28,16 @@ const LAUNCH_TEMPLATE_ID = "lt-0c975ceea10b5fdfe";
 
 const getQueueLength = async (queueName) => {
   try {
-    const length = await redis.llen(queueName);
-    return length;
+    const nodes = redis.nodes("master"); // Get all master nodes
+    let totalLength = 0;
+
+    // Fetch queue length from all master nodes and sum up
+    for (const node of nodes) {
+      const length = await node.llen(queueName).catch(() => 0);
+      totalLength += length;
+    }
+
+    return totalLength;
   } catch (error) {
     console.error(`Error fetching queue length for ${queueName}: `, error);
     return 0;
