@@ -7,7 +7,6 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 exporters:
-  logging:
   otlp:
     endpoint: tempo:4317
     tls:
@@ -20,7 +19,7 @@ service:
     traces:
       receivers: [otlp]
       processors: []
-      exporters: [logging, otlp]
+      exporters: [otlp]
 
     metrics:
       receivers: [otlp]
