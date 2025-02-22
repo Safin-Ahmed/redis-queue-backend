@@ -31,13 +31,14 @@ const getQueueLength = async (queueName) => {
     const nodes = redis.nodes("master"); // Get all master nodes
     let totalLength = 0;
 
+    console.log({ nodes });
+
     // Fetch queue length from all master nodes and sum up
     for (const node of nodes) {
       const length = await node.llen(queueName).catch(() => 0);
       console.log(`Length for Node: ${node} under ${queueName}: ${length}`);
       totalLength += length;
     }
-
     console.log(`Total length for Queue Name: ${queueName}: ${totalLength}`);
     return totalLength;
   } catch (error) {
@@ -76,6 +77,7 @@ const scaleUp = async (count) => {
         LaunchTemplate: { LaunchTemplateId: LAUNCH_TEMPLATE_ID },
         MinCount: count,
         MaxCount: count,
+        SubnetId: "subnet-00a9106dd9b703cbd",
       })
       .promise();
 
