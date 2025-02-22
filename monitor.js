@@ -34,9 +34,11 @@ const getQueueLength = async (queueName) => {
     // Fetch queue length from all master nodes and sum up
     for (const node of nodes) {
       const length = await node.llen(queueName).catch(() => 0);
+      console.log(`Length for Node: ${node} under ${queueName}: ${length}`);
       totalLength += length;
     }
 
+    console.log(`Total length for Queue Name: ${queueName}: ${totalLength}`);
     return totalLength;
   } catch (error) {
     console.error(`Error fetching queue length for ${queueName}: `, error);
